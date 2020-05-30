@@ -122,10 +122,6 @@ export default function ({
         }
     }, [data, componentWidth, height]);
 
-    useEffect(() => {
-        containerRef.current.scrollIntoView({ behavior: "smooth" });
-    }, [chartWidth]);
-
     return (
         <Wrapper>
             <AxisContainer>
