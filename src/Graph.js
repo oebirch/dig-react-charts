@@ -5,7 +5,7 @@ import moment from "moment";
 
 export default function ({
     data,
-    labels = [120, 100, 75, 50, 25, 0],
+    labels = [120, 100, 75, 50, 25, 0, -120, -100, -75, -50, -25],
     height = 200,
     decimals = 0,
 }) {
@@ -62,8 +62,12 @@ export default function ({
 
             // another edge case here
             if (dif === 0 || data.length === 1) {
-                graphMax = max - max * 0.5;
-                graphMin = min + max * 0.5;
+                let multiplier = 1;
+                if (graphMax < 0 && graphMin < 0) {
+                    multiplier = -1;
+                }
+                graphMax = max - multiplier * max * 0.5;
+                graphMin = min + multiplier * max * 0.5;
             }
 
             const getYVal = (y) => {
