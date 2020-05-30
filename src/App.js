@@ -2,7 +2,7 @@ import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import Graph from "./Graph";
-import Slider from "./slider";
+import Slider from "./Slider";
 function App() {
     const data1 = [[new Date("2020-05-05"), 40]];
 
@@ -30,15 +30,21 @@ function App() {
         <div className="App">
             <div className="container">
                 <Graph data={data1} />
-                <Graph data={data2} />
-                <Graph data={data3} />
-                <Graph data={data4} />
-
                 <br />
+                <Graph data={data2} />
+                <br />
+                <Graph data={data3} />
+                <br />
+                <Graph data={data4} />
                 <br />
                 <br />
                 <br />
                 <Slider min={-10} max={10} step={5} value={0.5} />
+                <br />
+                <Slider min={-2} max={5} step={1} value={0.5} />
+                <br />
+                <Slider min={0} max={5} step={1} value={1.75} decimals={0} />
+                <br />
             </div>
         </div>
     );
