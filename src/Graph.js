@@ -144,13 +144,15 @@ export default function ({
                     {chartWidth && (
                         <Stage width={chartWidth} height={height}>
                             <Layer>
-                                <Line
-                                    x={0}
-                                    y={0}
-                                    strokeWidth={1}
-                                    points={xAxisLine}
-                                    stroke="#b2b2b2"
-                                />
+                                {xAxisLine && (
+                                    <Line
+                                        x={0}
+                                        y={0}
+                                        strokeWidth={1}
+                                        points={xAxisLine}
+                                        stroke="#b2b2b2"
+                                    />
+                                )}
 
                                 {labelPoints &&
                                     labelPoints.map((labelPoint, index) => (
@@ -182,6 +184,7 @@ export default function ({
                                             align="center"
                                         />
                                     ))}
+
                                 {pointRects &&
                                     pointRects.map((xy, index) => (
                                         <Rect
@@ -194,12 +197,15 @@ export default function ({
                                             fill="#dc7267"
                                         />
                                     ))}
-                                <Line
-                                    x={0}
-                                    y={0}
-                                    points={points}
-                                    stroke="#dc7267"
-                                />
+
+                                {points && (
+                                    <Line
+                                        x={0}
+                                        y={0}
+                                        points={points}
+                                        stroke="#dc7267"
+                                    />
+                                )}
                             </Layer>
                         </Stage>
                     )}
