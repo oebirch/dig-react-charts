@@ -124,7 +124,7 @@ export default function ({
             setXAxisLine([0, adjustedHeight, newChartWidth, adjustedHeight]);
             setLabelOffsets(newLabelOffsets);
         }
-    }, [data, componentWidth, height]);
+    }, [data, componentWidth, height, labels, decimals]);
 
     return (
         <Wrapper>
