@@ -3,9 +3,10 @@ import styled from "styled-components";
 import { Stage, Layer, Shape, Line, Rect, Text } from "react-konva";
 import moment from "moment";
 
+const defaultLabels = [120, 100, 75, 50, 25, 0, -120, -100, -75, -50, -25];
 export default function ({
     data,
-    labels = [120, 100, 75, 50, 25, 0, -120, -100, -75, -50, -25],
+    labels = defaultLabels,
     height = 200,
     decimals = 0,
 }) {
