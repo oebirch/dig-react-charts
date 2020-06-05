@@ -3,12 +3,16 @@ import styled from "styled-components";
 import { Stage, Layer, Shape, Line, Rect, Text } from "react-konva";
 import moment from "moment";
 
-const defaultLabels = [120, 100, 75, 50, 25, 0, -120, -100, -75, -50, -25];
+const defaultLabels = [70, 80, 90, 100];
 export default function ({
     data,
     labels = defaultLabels,
     height = 200,
     decimals = 0,
+    postFix = "%",
+    yMax = 100,
+    yMin = 70,
+    lowTrigger = 70,
 }) {
     const [componentWidth, setComponentWidth] = useState(null);
     const [chartWidth, setChartWidth] = useState(null);
@@ -20,11 +24,20 @@ export default function ({
     const [xAxisLine, setXAxisLine] = useState(null);
     const [labelOffsets, setLabelOffsets] = useState(null);
 
+    const TEXT_HEIGHT = 20;
     useEffect(() => {
         if (containerRef.current) {
             setComponentWidth(containerRef.current.offsetWidth);
         }
     }, [containerRef]);
+
+    const getLabelString = (label, forceLow = true) => {
+        if (label <= lowTrigger && forceLow) {
+            return "LOW";
+        } else {
+            return `${label.toFixed(decimals)}${postFix}`;
+        }
+    };
 
     useEffect(() => {
         if (componentWidth) {
@@ -49,15 +62,24 @@ export default function ({
 
             // done accounting for edge caeses
 
-            const textHeight = 20;
-            const adjustedHeight = height - textHeight;
+            const adjustedHeight = height - TEXT_HEIGHT;
 
             const dataValues = data.map((i) => i[1]);
             const newPoints = [];
             let min = Math.max(...dataValues);
             let max = Math.min(...dataValues);
 
+            if (yMax) {
+                min = yMax;
+                Y_PADDING_PERCENTAGE = 0.15;
+            }
+            if (yMin) {
+                max = yMin;
+                Y_PADDING_PERCENTAGE = 0.15;
+            }
+
             const dif = max - min;
+
             let graphMax = max + Y_PADDING_PERCENTAGE * dif;
             let graphMin = min - Y_PADDING_PERCENTAGE * dif;
 
@@ -85,6 +107,7 @@ export default function ({
             const newLabelOffsets = [];
             labels.forEach((label) => {
                 const y = getYVal(label);
+                const labelText = `${label}${postFix}`;
                 if (y < height && y > 0) {
                     newLabelOffsets.push({
                         offset: y / height,
@@ -108,10 +131,8 @@ export default function ({
                     moment(value[0]).fromNow(),
                 ]);
 
-                newLabelPoints.push([
-                    [xPoint, y - 25, xSpacing],
-                    value[1].toFixed(decimals),
-                ]);
+                const toShow = getLabelString(value[1]);
+                newLabelPoints.push([[xPoint, y - 25, xSpacing], toShow]);
             });
 
             const newChartWidth =
@@ -129,11 +150,14 @@ export default function ({
 
     return (
         <Wrapper>
+            <ArrowContainer>
+                <ArrowLeft />
+            </ArrowContainer>
             <AxisContainer>
                 {labelOffsets &&
                     labelOffsets.map((value, index) => (
                         <Label key={index} offset={value.offset}>
-                            {value.label}
+                            {getLabelString(value.label, false)}
                         </Label>
                     ))}
             </AxisContainer>
@@ -145,13 +169,12 @@ export default function ({
                     {chartWidth && (
                         <Stage width={chartWidth} height={height}>
                             <Layer>
-                                {xAxisLine && (
+                                {points && (
                                     <Line
                                         x={0}
                                         y={0}
-                                        strokeWidth={1}
-                                        points={xAxisLine}
-                                        stroke="#b2b2b2"
+                                        points={points}
+                                        stroke="#dc7267"
                                     />
                                 )}
 
@@ -171,6 +194,39 @@ export default function ({
                                         />
                                     ))}
 
+                                {pointRects &&
+                                    pointRects.map((xy, index) => (
+                                        <Rect
+                                            key={index}
+                                            x={xy[0]}
+                                            y={xy[1] - 7}
+                                            width={10}
+                                            height={10}
+                                            rotation={45}
+                                            fill="#dc7267"
+                                        />
+                                    ))}
+
+                                {xAxisLine && (
+                                    <Rect
+                                        x={0}
+                                        y={xAxisLine[1]}
+                                        width={xAxisLine[2]}
+                                        height={TEXT_HEIGHT}
+                                        fill="white"
+                                    />
+                                )}
+
+                                {xAxisLine && (
+                                    <Line
+                                        x={0}
+                                        y={0}
+                                        strokeWidth={1}
+                                        points={xAxisLine}
+                                        stroke="#b2b2b2"
+                                    />
+                                )}
+
                                 {textPoints &&
                                     textPoints.map((textPoint, index) => (
                                         <Text
@@ -185,36 +241,43 @@ export default function ({
                                             align="center"
                                         />
                                     ))}
-
-                                {pointRects &&
-                                    pointRects.map((xy, index) => (
-                                        <Rect
-                                            key={index}
-                                            x={xy[0]}
-                                            y={xy[1] - 7}
-                                            width={10}
-                                            height={10}
-                                            rotation={45}
-                                            fill="#dc7267"
-                                        />
-                                    ))}
-
-                                {points && (
-                                    <Line
-                                        x={0}
-                                        y={0}
-                                        points={points}
-                                        stroke="#dc7267"
-                                    />
-                                )}
                             </Layer>
                         </Stage>
                     )}
                 </ChartContainer>
             </ScrollableContainer>
+            <ArrowContainer>
+                <ArrowRight />
+            </ArrowContainer>
         </Wrapper>
     );
 }
+
+const ArrowContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const ArrowLeft = styled.div`
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+
+    border-right: 10px solid #dc7267;
+    margin-right: 10px;
+`;
+
+const ArrowRight = styled.div`
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+
+    border-left: 10px solid #dc7267;
+    margin-left: 10px;
+`;
 
 const Wrapper = styled.div`
     display: flex;
@@ -225,7 +288,7 @@ const AxisContainer = styled.div`
     display: flex;
     flex-direction: row;
     position: relative;
-    width: 30px;
+    width: 50px;
 `;
 
 const Label = styled.span`
